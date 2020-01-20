@@ -1,6 +1,8 @@
 import math
 from typing import Tuple, List, Callable
 
+from neural_network import Network, Perceptron, NetworkInput
+
 
 def parse_input_and_weight(input_and_weight_data: str) -> Tuple[str, str]:
     return input_and_weight_data[0:6], input_and_weight_data[6:32]
@@ -58,19 +60,44 @@ def read(
     )
 
 
+def build_neural_network(
+    network_input_perceptrons_indexes: List[int],
+    network_output_perceptrons_indexes: List[int],
+    perceptrons_details: List[Tuple[Callable, List[int], List[float]]],
+) -> Network:
+    perceptrons = [
+        (NetworkInput if index in network_input_perceptrons_indexes else Perceptron)(activation_function, [])
+        for index, (activation_function, input_perceptrons_indexes, weight) in enumerate(perceptrons_details)
+    ]
+    for (activation_function, input_perceptrons_indexes, weights), perceptron in zip(perceptrons_details, perceptrons):
+        for index, weight in zip(input_perceptrons_indexes, weights):
+            perceptron.add_as_input(perceptrons[index], weight)
+    network_input_perceptrons, network_output_perceptrons, computing_perceptrons = [], [], []
+    for i, perceptron in enumerate(perceptrons):
+        if i in network_input_perceptrons_indexes:
+            network_input_perceptrons.append(perceptron)
+        elif i in network_output_perceptrons_indexes:
+            network_output_perceptrons.append(perceptron)
+        else:
+            computing_perceptrons.append(perceptron)
+    return Network(network_input_perceptrons, computing_perceptrons)
+
+
 if __name__ == "__main__":
-    scope = read(
-        *parse(
-            "000001" "000010" "000000" "000010" "000010" "000001"
-            # Perceptron 0
-            "000010" "0000"
-            # Weights
-            "000000" "00000011111111111111111100" "000000" "00000000000000000000000000"
-            # Perceptron 1
-            "000000" "0000"
-            # Weights
-            "000000" "000000000000000000",
-            2,
-            4,
+    scope = build_neural_network(
+        *read(
+            *parse(
+                "000001" "000010" "000000" "000010" "000010" "000001"
+                # Perceptron 0
+                "000010" "0000"
+                # Weights
+                "000000" "00000011111111111111111100" "000000" "00000000000000000000000000"
+                # Perceptron 1
+                "000000" "0000"
+                # Weights
+                "000000" "000000000000000000",
+                2,
+                4,
+            )
         )
     )

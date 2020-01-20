@@ -33,8 +33,8 @@ class Perceptron:
     def id(self):
         return str(id(self))[-5:]
 
-    def add_as_input(self, perceptron: Perceptron):
-        self.weights.append(random())
+    def add_as_input(self, perceptron: Perceptron, weight: Number):
+        self.weights.append(weight)
         self.inputs.append(perceptron)
 
     def __repr__(self):
@@ -57,13 +57,24 @@ class NetworkInput(Perceptron):
 
 
 class Network:
-    def __init__(self, nbr: int, nbr_inputs: int, initial_input_nbr: int):
+    def __init__(self, input_perceptrons: List[NetworkInput], computing_perceptrons: List[Perceptron]):
+        self.input_perceptrons = input_perceptrons
+        self.computing_perceptrons = computing_perceptrons
+
+    @property
+    def perceptrons(self) -> List[Perceptron]:
+        self.input_perceptrons: List[Perceptron]
+        return self.input_perceptrons + self.computing_perceptrons
+
+    @classmethod
+    def build_random(cls, nbr: int, nbr_inputs: int, initial_input_nbr: int) -> Network:
         computing_perceptrons = [Perceptron(lambda x: x, []) for _ in range(nbr)]
-        self.input_perceptrons = [NetworkInput(lambda x: x, []) for _ in range(nbr_inputs)]
-        self.perceptrons = computing_perceptrons + self.input_perceptrons
+        input_perceptrons = [NetworkInput(lambda x: x, []) for _ in range(nbr_inputs)]
+        perceptrons = computing_perceptrons + input_perceptrons
         for perceptron in computing_perceptrons:
-            for new_input in [p for p in choices(self.perceptrons, k=initial_input_nbr) if p is not perceptron]:
-                perceptron.add_as_input(new_input)
+            for new_input in [p for p in choices(perceptrons, k=initial_input_nbr) if p is not perceptron]:
+                perceptron.add_as_input(new_input, random())
+        return cls(input_perceptrons, computing_perceptrons)
 
     def feedforward(self, inputs: List[Number]):
         for i, input_value in enumerate(inputs):
@@ -84,7 +95,7 @@ class Network:
 
 
 if __name__ == "__main__":
-    network = Network(5, 2, 2)
+    network = Network.build_random(5, 2, 2)
     while True:
         network.feedforward([random(), random()])
         with open("nn.dot", "w") as f:
