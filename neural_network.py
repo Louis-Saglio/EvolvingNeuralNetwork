@@ -22,9 +22,6 @@ class Perceptron:
         self.formula = "0"
 
     def run(self):
-        text = []
-        for i, w in zip(self.inputs, self.weights):
-            text.append(f"{round(w, 2)} * {round(i.output_value, 2)}")
         self.current_value = self.activation_function(
             sum([i.output_value * weight for i, weight in zip(self.inputs, self.weights)])
         )
