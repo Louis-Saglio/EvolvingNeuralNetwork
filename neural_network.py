@@ -19,7 +19,6 @@ class Perceptron:
         self.current_value: Number = 0
         self.old_value: Number = 0
         self.weights: List[Number] = [random() for _ in self.inputs]
-        self.formula = "0"
 
     def run(self):
         self.current_value = self.activation_function(
@@ -31,7 +30,7 @@ class Perceptron:
 
     @property
     def id(self):
-        return str(id(self))[-5:]
+        return int(str(id(self))[-5:])
 
     def add_as_input(self, perceptron: Perceptron, weight: Number):
         self.weights.append(weight)
@@ -57,24 +56,35 @@ class NetworkInput(Perceptron):
 
 
 class Network:
-    def __init__(self, input_perceptrons: List[NetworkInput], computing_perceptrons: List[Perceptron]):
+    def __init__(
+        self,
+        input_perceptrons: List[NetworkInput],
+        hidden_perceptrons: List[Perceptron],
+        output_perceptrons: List[Perceptron],
+    ):
+        self.output_perceptrons = output_perceptrons
         self.input_perceptrons = input_perceptrons
-        self.computing_perceptrons = computing_perceptrons
+        self.hidden_perceptrons = hidden_perceptrons
 
     @property
     def perceptrons(self) -> List[Perceptron]:
         self.input_perceptrons: List[Perceptron]
-        return self.input_perceptrons + self.computing_perceptrons
+        for perceptron_list in (self.input_perceptrons, self.hidden_perceptrons, self.output_perceptrons):
+            for perceptron in perceptron_list:
+                yield perceptron
 
     @classmethod
-    def build_random(cls, nbr: int, nbr_inputs: int, initial_input_nbr: int) -> Network:
-        computing_perceptrons = [Perceptron(lambda x: x, []) for _ in range(nbr)]
+    def build_random(cls, nbr: int, nbr_inputs: int, nbr_outputs: int, initial_input_nbr_by_perceptron: int) -> Network:
+        hidden_perceptrons = [Perceptron(lambda x: x, []) for _ in range(nbr)]
         input_perceptrons = [NetworkInput(lambda x: x, []) for _ in range(nbr_inputs)]
-        perceptrons = computing_perceptrons + input_perceptrons
-        for perceptron in computing_perceptrons:
-            for new_input in [p for p in choices(perceptrons, k=initial_input_nbr) if p is not perceptron]:
+        output_perceptrons = [Perceptron(lambda x: x, []) for _ in range(nbr_outputs)]
+        perceptrons = hidden_perceptrons + input_perceptrons + output_perceptrons
+        for perceptron in hidden_perceptrons + output_perceptrons:
+            for new_input in [
+                p for p in choices(perceptrons, k=initial_input_nbr_by_perceptron) if p is not perceptron
+            ]:
                 perceptron.add_as_input(new_input, random())
-        return cls(input_perceptrons, computing_perceptrons)
+        return cls(input_perceptrons, hidden_perceptrons, output_perceptrons)
 
     def feedforward(self, inputs: List[Number]):
         for i, input_value in enumerate(inputs):
@@ -95,7 +105,7 @@ class Network:
 
 
 if __name__ == "__main__":
-    network = Network.build_random(5, 2, 2)
+    network = Network.build_random(5, 2, 2, 2)
     while True:
         network.feedforward([random(), random()])
         with open("nn.dot", "w") as f:
