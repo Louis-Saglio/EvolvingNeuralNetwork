@@ -1,6 +1,6 @@
-import math
 from typing import Tuple, List, Callable
 
+from activation_functions import identity, sigmoid, relu
 from neural_network import Network, Perceptron, NetworkInput
 
 
@@ -21,7 +21,6 @@ def parse_perceptron_data(data: str) -> Tuple[str, List[str], List[str]]:
 def parse(
     data: str, input_nbr: int, output_nbr: int
 ) -> Tuple[List[str], List[str], List[Tuple[str, List[str], List[str]]]]:
-    assert len(data) == 144, len(data)
     cursor = input_nbr * 6 + output_nbr * 6
     perceptrons_data = []
     while True:
@@ -49,9 +48,7 @@ def read(
         [int(output_index_data, base=2) for output_index_data in outputs_indexes_data],
         [
             (
-                {"0000": lambda x: x, "0001": lambda x: 1 / (1 + math.exp(-x)), "0002": lambda x: max(0, x)}[
-                    perceptron_data[0]
-                ],
+                {"0000": identity, "0001": sigmoid, "0010": relu}[perceptron_data[0]],
                 [int(i, base=2) for i in perceptron_data[1]],
                 [int(i, base=2) / 10 ** 6 for i in perceptron_data[2]],
             )
@@ -80,7 +77,7 @@ def build_neural_network(
             network_output_perceptrons.append(perceptron)
         else:
             computing_perceptrons.append(perceptron)
-    return Network(network_input_perceptrons, computing_perceptrons)
+    return Network(network_input_perceptrons, computing_perceptrons, network_output_perceptrons)
 
 
 if __name__ == "__main__":
