@@ -63,7 +63,7 @@ def build_neural_network(
     perceptrons_details: List[Tuple[Callable, List[int], List[float]]],
 ) -> Network:
     perceptrons = [
-        (NetworkInput if index in network_input_perceptrons_indexes else Perceptron)(activation_function, [])
+        (NetworkInput if index in network_input_perceptrons_indexes else Perceptron)(activation_function, [], [])
         for index, (activation_function, input_perceptrons_indexes, weight) in enumerate(perceptrons_details)
     ]
     for (activation_function, input_perceptrons_indexes, weights), perceptron in zip(perceptrons_details, perceptrons):

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 import os
 from random import choices, random
 from typing import Union, Callable, List
@@ -8,17 +7,15 @@ from typing import Union, Callable, List
 Number = Union[int, float]
 
 
-def sigmoid(x):
-    return 1 / (1 + math.exp(-x))
-
-
 class Perceptron:
-    def __init__(self, activation_function: Callable[[Number], Number], inputs: List[Perceptron]):
+    def __init__(
+        self, activation_function: Callable[[Number], Number], inputs: List[Perceptron], weights: List[Number]
+    ):
         self.inputs = inputs
         self.activation_function = activation_function
         self.current_value: Number = 0
         self.old_value: Number = 0
-        self.weights: List[Number] = [random() for _ in self.inputs]
+        self.weights: List[Number] = weights
 
     def run(self):
         self.current_value = self.activation_function(
@@ -75,9 +72,9 @@ class Network:
 
     @classmethod
     def build_random(cls, nbr: int, nbr_inputs: int, nbr_outputs: int, initial_input_nbr_by_perceptron: int) -> Network:
-        hidden_perceptrons = [Perceptron(lambda x: x, []) for _ in range(nbr)]
-        input_perceptrons = [NetworkInput(lambda x: x, []) for _ in range(nbr_inputs)]
-        output_perceptrons = [Perceptron(lambda x: x, []) for _ in range(nbr_outputs)]
+        hidden_perceptrons = [Perceptron(lambda x: x, [], []) for _ in range(nbr)]
+        input_perceptrons = [NetworkInput(lambda x: x, [], []) for _ in range(nbr_inputs)]
+        output_perceptrons = [Perceptron(lambda x: x, [], []) for _ in range(nbr_outputs)]
         perceptrons = hidden_perceptrons + input_perceptrons + output_perceptrons
         for perceptron in hidden_perceptrons + output_perceptrons:
             for new_input in [
