@@ -65,10 +65,13 @@ class Network:
 
     @property
     def perceptrons(self) -> List[Perceptron]:
+        yielded_perceptrons_ids = set()
         self.input_perceptrons: List[Perceptron]
         for perceptron_list in (self.input_perceptrons, self.hidden_perceptrons, self.output_perceptrons):
             for perceptron in perceptron_list:
-                yield perceptron
+                if id(perceptron) not in yielded_perceptrons_ids:
+                    yield perceptron
+                    yielded_perceptrons_ids.add(id(perceptron))
 
     @classmethod
     def build_random(cls, nbr: int, nbr_inputs: int, nbr_outputs: int, initial_input_nbr_by_perceptron: int) -> Network:

@@ -1,3 +1,4 @@
+import random
 from unittest import TestCase
 
 from encoding import parse, read, build_neural_network
@@ -106,3 +107,9 @@ class TestBuildNeuralNetwork(TestCase):
         self.assertIsInstance(network.hidden_perceptrons[1], Perceptron)
         self.assertIs(network.hidden_perceptrons[1].activation_function, relu)
         self.assertListEqual(network.hidden_perceptrons[1].weights, [0.42])
+
+    def test_build_neural_network_input_number(self):
+        network = build_neural_network(
+            *read(*parse("".join([str(random.randint(0, 1)) for _ in range(random.randint(49, 5000))]), 5, 1))
+        )
+        self.assertEqual(len(network.input_perceptrons), 5)
