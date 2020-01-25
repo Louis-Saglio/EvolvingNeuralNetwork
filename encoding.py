@@ -64,9 +64,9 @@ def read(
         [int(output_index_data, base=2) for output_index_data in outputs_indexes_data],
         [
             (
-                {"0000": identity, "0001": sigmoid, "0010": relu}.get(perceptron_data[0], identity),
+                {"0000": identity, "0001": sigmoid, "0010": relu}.get(perceptron_data[0], sigmoid),
                 [int(i, base=2) for i in perceptron_data[1]],
-                [int(i, base=2) / 10 ** 6 for i in perceptron_data[2]],
+                [int(i, base=2) / 2 ** 26 for i in perceptron_data[2]],
             )
             for perceptron_data in perceptrons_data
         ],
@@ -103,27 +103,31 @@ def build_neural_network(
     return Network(network_input_perceptrons, hidden_perceptrons, network_output_perceptrons)
 
 
+def build_neural_network_from_binary_string(data: str, input_nbr: int, output_nbr: int) -> Network:
+    """"
+    Shortcut for build_neural_network(*read(*parse(data, input_nbr, output_nbr)))
+    """
+    # todo test
+    return build_neural_network(*read(*parse(data, input_nbr, output_nbr)))
+
+
 def main():
-    build_neural_network(
-        *read(
-            *parse(
-                "000001" "000010" "000000" "000010" "000010" "000001"
-                # Perceptron 0
-                "000010" "0000"
-                # Weights
-                "000000" "00000011111111111111111100" "000000" "00000000000000000000000000"
-                # Perceptron 1
-                "000000" "0000"
-                # Weights
-                "000000" "000000000000000000",
-                2,
-                4,
-            )
-        )
+    build_neural_network_from_binary_string(
+        "000001" "000010" "000000" "000010" "000010" "000001"
+        # Perceptron 0
+        "000010" "0000"
+        # Weights
+        "000000" "00000011111111111111111100" "000000" "00000000000000000000000000"
+        # Perceptron 1
+        "000000" "0000"
+        # Weights
+        "000000" "000000000000000000",
+        2,
+        4,
     )
     input_nbr = 1
-    network = build_neural_network(
-        *read(*parse("".join([str(random.randint(0, 1)) for _ in range(random.randint(49, 100))]), input_nbr, 3))
+    network = build_neural_network_from_binary_string(
+        "".join([str(random.randint(0, 1)) for _ in range(random.randint(49, 5000))]), input_nbr, 3
     )
     while True:
         input(">>>")

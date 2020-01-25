@@ -86,13 +86,14 @@ class Network:
                 perceptron.add_as_input(new_input, random())
         return cls(input_perceptrons, hidden_perceptrons, output_perceptrons)
 
-    def feedforward(self, inputs: List[Number]):
+    def feedforward(self, inputs: List[Number]) -> List[Number]:
         for i, input_value in enumerate(inputs):
             self.input_perceptrons[i].read(input_value)
         for perceptron in self.perceptrons:
             perceptron.run()
         for perceptron in self.perceptrons:
             perceptron.update()
+        return [out.output_value for out in self.output_perceptrons]
 
     def write_as_graphviz(self) -> str:
         text = ["digraph {"]
