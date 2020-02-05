@@ -5,19 +5,36 @@ from typing import Tuple, List, Callable
 from activation_functions import identity, sigmoid, relu
 from neural_network import Network, Perceptron, NetworkInput
 
+NETWORK_INPUT_INDEX_SIZE = 6
+NETWORK_OUTPUT_INDEX_SIZE = 6
+PERCEPTRON_INPUT_INDEX_SIZE = 4
+WEIGHT_SIZE = 26
+WEIGHTED_PERCEPTRON_INDEX_SIZE = 6
+ACTIVATION_FUNCTION_KEY_SIZE = 4
+PERCEPTRON_INPUT_NUMBER_SIZE = 6
+
 
 def parse_input_and_weight(input_and_weight_data: str) -> Tuple[str, str]:
-    return input_and_weight_data[0:6], input_and_weight_data[6:32]
+    return (
+        input_and_weight_data[0:PERCEPTRON_INPUT_INDEX_SIZE],
+        input_and_weight_data[PERCEPTRON_INPUT_INDEX_SIZE : WEIGHT_SIZE + WEIGHTED_PERCEPTRON_INDEX_SIZE],
+    )
 
 
 def parse_perceptron_data(data: str) -> Tuple[str, List[str], List[str]]:
-    inputs_and_weights_data = data[10:]
+    inputs_and_weights_data = data[ACTIVATION_FUNCTION_KEY_SIZE + PERCEPTRON_INPUT_NUMBER_SIZE :]
     inputs_data, weights_data = [], []
-    for i in range(0, len(inputs_and_weights_data), 32):
-        input_data, weight_data = parse_input_and_weight(inputs_and_weights_data[i : i + 32])
+    for i in range(0, len(inputs_and_weights_data), WEIGHT_SIZE + WEIGHTED_PERCEPTRON_INDEX_SIZE):
+        input_data, weight_data = parse_input_and_weight(
+            inputs_and_weights_data[i : i + WEIGHT_SIZE + WEIGHTED_PERCEPTRON_INDEX_SIZE]
+        )
         inputs_data.append(input_data)
         weights_data.append(weight_data)
-    return data[6:10], inputs_data, weights_data
+    return (
+        data[PERCEPTRON_INPUT_NUMBER_SIZE : PERCEPTRON_INPUT_NUMBER_SIZE + ACTIVATION_FUNCTION_KEY_SIZE],
+        inputs_data,
+        weights_data,
+    )
 
 
 def parse(
@@ -31,12 +48,17 @@ def parse(
     Finally, the third one is the data describing all the perceptrons.
     See the file 'design' to know the rules used to split the data.
     """
-    cursor = input_nbr * 6 + output_nbr * 6
+    cursor = input_nbr * NETWORK_INPUT_INDEX_SIZE + output_nbr * NETWORK_OUTPUT_INDEX_SIZE
     if cursor >= len(data):
         raise RuntimeError(f"data is too short : size is {len(data)} whereas {cursor + 1} or more is required")
     perceptrons_data = []
     while True:
-        perceptron_data_size = int(data[cursor : cursor + 6], base=2) * 32 + 4 + 6
+        perceptron_data_size = (
+            int(data[cursor : cursor + PERCEPTRON_INPUT_NUMBER_SIZE], base=2)
+            * (WEIGHTED_PERCEPTRON_INDEX_SIZE + WEIGHTED_PERCEPTRON_INDEX_SIZE)
+            + ACTIVATION_FUNCTION_KEY_SIZE
+            + PERCEPTRON_INPUT_NUMBER_SIZE
+        )
         perceptrons_data.append(
             parse_perceptron_data(data[cursor : cursor + perceptron_data_size].ljust(perceptron_data_size, "0"))
         )
@@ -44,8 +66,19 @@ def parse(
         if cursor >= len(data) - 1:
             break
     return (
-        [data[0 : input_nbr * 6][i * 6 : (i + 1) * 6] for i in range(input_nbr)],
-        [data[input_nbr * 6 : input_nbr * 6 + output_nbr * 6][i * 6 : (i + 1) * 6] for i in range(output_nbr)],
+        [
+            data[0 : input_nbr * NETWORK_INPUT_INDEX_SIZE][
+                i * NETWORK_INPUT_INDEX_SIZE : (i + 1) * NETWORK_INPUT_INDEX_SIZE
+            ]
+            for i in range(input_nbr)
+        ],
+        [
+            data[
+                input_nbr * NETWORK_INPUT_INDEX_SIZE : input_nbr * NETWORK_INPUT_INDEX_SIZE
+                + output_nbr * NETWORK_OUTPUT_INDEX_SIZE
+            ][i * NETWORK_OUTPUT_INDEX_SIZE : (i + 1) * NETWORK_OUTPUT_INDEX_SIZE]
+            for i in range(output_nbr)
+        ],
         perceptrons_data,
     )
 
@@ -112,22 +145,20 @@ def build_neural_network_from_binary_string(data: str, input_nbr: int, output_nb
 
 
 def main():
-    build_neural_network_from_binary_string(
-        "000001" "000010" "000000" "000010" "000010" "000001"
-        # Perceptron 0
-        "000010" "0000"
-        # Weights
-        "000000" "00000011111111111111111100" "000000" "00000000000000000000000000"
-        # Perceptron 1
-        "000000" "0000"
-        # Weights
-        "000000" "000000000000000000",
-        2,
-        4,
-    )
     input_nbr = 1
     network = build_neural_network_from_binary_string(
-        "".join([str(random.randint(0, 1)) for _ in range(random.randint(49, 5000))]), input_nbr, 3
+        # "000001" "000010" "000000" "000010" "000010" "000001"
+        # # Perceptron 0
+        # "000010" "0000"
+        # # Weights
+        # "000000" "00000011111111111111111100" "000000" "00000000000000000000000000"
+        # # Perceptron 1
+        # "000000" "0000"
+        # # Weights
+        # "000000" "000000000000000000",
+        "".join([str(random.randint(0, 1)) for _ in range(random.randint(49, 5000))]),
+        input_nbr,
+        3,
     )
     while True:
         input(">>>")

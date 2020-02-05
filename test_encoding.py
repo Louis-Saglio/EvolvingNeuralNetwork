@@ -73,7 +73,8 @@ class TestRead(TestCase):
         self.assertListEqual(input_indexes, [0])
         self.assertListEqual(output_indexes, [2])
         self.assertListEqual(
-            perceptrons_details, [(identity, [0, 0], [0, 0.000063]), (sigmoid, [0], [0]), (relu, [1], [16.811015])]
+            perceptrons_details,
+            [(identity, [0, 0], [0, 9.387731552124023e-07]), (sigmoid, [0], [0]), (relu, [1], [0.25050364434719086])],
         )
 
 
