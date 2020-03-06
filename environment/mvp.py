@@ -3,7 +3,8 @@ from __future__ import annotations
 from random import choice
 from typing import List, Callable
 
-from environment.map import Cell, build_2d_map
+from map import Cell
+from twodmap import build_2d_map, move_left, move_right, move_down, move_up
 
 Action = Callable[["Individual"], None]
 
@@ -31,38 +32,17 @@ class Universe:
                 individual.run()
 
 
-def move(individual: Individual, to: int):
-    if len(individual.cell.neighbours) < to:
-        individual.cell.stack.remove(individual)
-        individual.cell = individual.cell.neighbours[to]
-        individual.cell.stack.append(individual)
-
-
-def move_left(individual: Individual):
-    move(individual, 0)
-
-
-def move_right(individual: Individual):
-    move(individual, 1)
-
-
-def move_down(individual: Individual):
-    move(individual, 2)
-
-
-def move_up(individual: Individual):
-    move(individual, 3)
-
-
 def main():
     class RandomIndividual(Individual):
         def choose_action(self) -> Action:
             return choice(self.possible_actions)
 
-    cells = list(build_2d_map(10, 10).values())
-    actions = [move_left, move_right, move_down, move_up]
     universe = Universe()
-    universe.individuals = [RandomIndividual(choice(cells), actions) for _ in range(10)]
+    cells = list(build_2d_map(10, 10).values())
+    universe.individuals = [
+        RandomIndividual(choice(cells), [move_left, move_right, move_down, move_up])
+        for _ in range(10)
+    ]
     universe.run()
 
 
