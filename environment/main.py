@@ -12,7 +12,7 @@ def main():
     universe = Universe()
     cells = list(build_2d_map(10, 10).values())
     universe.individuals = [
-        RandomIndividual(choice(cells), [Move(LEFT), Move(RIGHT), Move(DOWN), Move(UP)])
+        RandomIndividual(choice(cells), [Move(LEFT), Move(RIGHT), Move(DOWN), Move(UP)], 100)
         for _ in range(10)
     ]
     universe.run()

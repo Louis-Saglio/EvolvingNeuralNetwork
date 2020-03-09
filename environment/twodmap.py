@@ -1,7 +1,7 @@
 from typing import Dict, Tuple
 
 from environment.map import Cell
-from models import Individual
+from models import Individual, Action
 
 
 class Direction:
@@ -21,8 +21,9 @@ DIRECTIONS = LEFT, RIGHT, UP, DOWN = (
 )
 
 
-class Move:
+class Move(Action):
     def __init__(self, direction: Direction):
+        super().__init__(10)
         self.direction = direction
 
     def __call__(self, individual: Individual):
