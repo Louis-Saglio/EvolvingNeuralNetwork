@@ -1,16 +1,13 @@
 from typing import Dict, Tuple
 
 from environment.map import Cell
-from models import Individual, Action
+from models import Action, Spacial
 
 
 class Direction:
-    directions = {}
-
     def __init__(self, name: str, vector: Tuple[int, int]):
         self.name = name
         self.vector = vector
-        type(self).directions[name] = self
 
 
 DIRECTIONS = LEFT, RIGHT, UP, DOWN = (
@@ -26,8 +23,8 @@ class Move(Action):
         super().__init__(10)
         self.direction = direction
 
-    def __call__(self, individual: Individual):
-        individual.move(DIRECTIONS.index(self.direction))
+    def __call__(self, spacial: Spacial):
+        spacial.move(DIRECTIONS.index(self.direction))
 
 
 def build_2d_map(width: int, height: int) -> Dict[Tuple[int, int], Cell]:

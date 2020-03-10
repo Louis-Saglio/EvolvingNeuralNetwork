@@ -1,26 +1,26 @@
 from unittest import TestCase
 
 from map import Cell
-from models import Individual
+from models import Spacial
 
 
-class TestIndividual(TestCase):
+class TestSpacial(TestCase):
     def test_move(self):
         cell = Cell()
         cell.neighbours = [Cell(), Cell(), Cell(), Cell()]
-        individual = Individual(cell, [])
-        individual.move(0)
+        spacial = Spacial(cell)
+        spacial.move(0)
 
-        self.assertIs(individual.cell, cell.neighbours[0])
-        self.assertNotIn(individual, cell.stack)
-        self.assertIn(individual, individual.cell.stack)
+        self.assertIs(spacial.cell, cell.neighbours[0])
+        self.assertNotIn(spacial, cell.stack)
+        self.assertIn(spacial, spacial.cell.stack)
 
     def test_move_to_absent_destination(self):
         cell = Cell()
         cell.neighbours = [Cell(), Cell()]
-        individual = Individual(cell, [])
-        individual.move(3)
+        spacial = Spacial(cell)
+        spacial.move(3)
 
-        self.assertIs(individual.cell, cell)
-        self.assertIn(individual, cell.stack)
-        self.assertIn(individual, cell.stack)
+        self.assertIs(spacial.cell, cell)
+        self.assertIn(spacial, cell.stack)
+        self.assertIn(spacial, cell.stack)
